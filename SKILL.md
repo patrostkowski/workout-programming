@@ -1,6 +1,6 @@
 ---
 name: workout-programming
-description: Interactive, language-agnostic programming recall workouts for experienced developers. Go by default, C optional. One shared coaching flow with per-language setup, code scope, and validation. The Go track mixes Go internals with Linux system programming at easy, then leans into Unix internals in Go at medium and hard: files, pipes, processes, signals, sockets, and syscalls.
+description: Interactive, language-agnostic programming recall workouts for experienced developers. Go by default, C optional. One shared coaching flow with per-language setup, code scope, and validation. The Go track mixes Go internals with Linux system programming at easy, then at medium and hard pairs Unix internals in Go with concurrent Go: files, pipes, processes, signals, sockets, syscalls, goroutines, channels, and `select`.
 argument-hint: "[go|c] [easy|medium|hard] [topic] | resume [dir]"
 disable-model-invocation: true
 ---
@@ -19,6 +19,8 @@ Load only the reference for the selected language:
 - Go (default): [references/go.md](references/go.md)
 - C: [references/c.md](references/c.md)
 
+Once the level is known, also load its topic list: [references/topics/easy.md](references/topics/easy.md), [references/topics/medium.md](references/topics/medium.md), or [references/topics/hard.md](references/topics/hard.md).
+
 Do not load the other track unless the user switches languages. Keep progression independent per language.
 
 ## Workout levels
@@ -26,8 +28,16 @@ Do not load the other track unless the user switches languages. Keep progression
 Ask for the level once at session start unless `$ARGUMENTS` already names it. Present the three options with their scope:
 
 - **Easy:** one small function or snippet, at most 20 lines of user code, one main idea. In the Go track, alternate between Go internals and Unix system tasks, so a session covers both. Solvable in 2 to 5 minutes.
-- **Medium:** one problem, at most 100 lines of user code, several constructs or edge cases, some standard library. In the Go track, stay on Unix internals and use Go as the vehicle: file descriptors, buffered file I/O, pipes, processes, signals, sockets, `/proc`. Solvable in 10 to 30 minutes.
-- **Hard:** a small program spread over multiple files, wider standard library use, optionally additional tests beyond the minimal scaffold. In the Go track, go deeper into Unix internals: servers, process supervision, fd passing, epoll, inotify, mmap. Takes 30 to 90 minutes.
+- **Medium:** one problem, at most 100 lines of user code, several constructs or edge cases, some standard library. In the Go track, stay on Unix internals and use Go as the vehicle: file descriptors, buffered file I/O, pipes, processes, signals, sockets, `/proc`. Goroutines, channels, and `select` timeouts are also in scope where the task calls for them. Solvable in 10 to 30 minutes.
+- **Hard:** a small program spread over multiple files, wider standard library use, optionally additional tests beyond the minimal scaffold. In the Go track, go deeper into Unix internals: servers, process supervision, fd passing, epoll, inotify, mmap, plus concurrent structure such as worker pools, goroutine per connection, `sync.WaitGroup`, and shutdown through context or channels. Takes 30 to 90 minutes.
+
+## Topic files
+
+Each level has its own topic list, and the lists are cumulative: medium contains every easy topic, and hard contains every easy and medium topic. Draw each task from the list for its level, and rotate between areas so consecutive tasks do not repeat the same theme. The lists are options, not a checklist: one task covers one or two areas, and no area is required every time.
+
+- Easy: [references/topics/easy.md](references/topics/easy.md)
+- Medium: [references/topics/medium.md](references/topics/medium.md)
+- Hard: [references/topics/hard.md](references/topics/hard.md)
 
 Use the question tool (`AskUserQuestion`) when it is available; otherwise ask a short numbered question. State the language, level, and file scope in every task. Line limits apply to the user's code, not to the task text or generated tests.
 

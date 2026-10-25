@@ -2,7 +2,7 @@
 
 Use standard Go and the standard library. Pick the level at session start and keep every exercise inside its scope. Each exercise targets one main idea and optionally one adjacent concept. Give correct, copyable function signatures; never implementation bodies beyond TODO placeholders.
 
-This track is systems-oriented and assumes Linux. Easy tasks alternate Go internals with Linux basics; medium and hard lean into Linux internals in Go: files, file descriptors, permissions, pipes, processes, signals, sockets, `/proc`, and the standard library that wraps them. Use the `syscall` package for Linux-specific exercises. Say in the task that the exercise is Linux-only, and do not add `golang.org/x/sys/unix` or any other dependency.
+This track is systems-oriented and assumes Linux. Easy tasks alternate Go internals with Linux basics; medium and hard mix Linux internals in Go with concurrent Go where the task fits: files, file descriptors, permissions, pipes, processes, signals, sockets, `/proc`, goroutines, channels, and `select`. Use the `syscall` package for Linux-specific exercises. Say in the task that the exercise is Linux-only, and do not add `golang.org/x/sys/unix` or any other dependency.
 
 ## Setup
 
@@ -191,7 +191,7 @@ Example themes: read the first line of a file; copy a file; print inode, size, a
 
 ## Medium: Unix internals in Go (max 100 lines)
 
-Unix internals first, with Go as the vehicle. Prefer tasks about descriptors, files, pipes, processes, signals, sockets, and `/proc`. Language features appear because the task needs them, not as drills.
+Unix internals first, with Go as the vehicle. Prefer tasks about descriptors, files, pipes, processes, signals, sockets, and `/proc`. Add goroutines, channels, and `select` when the work is naturally concurrent, not as a drill.
 
 - Descriptors and low-level files: `os.File.Fd`, `os.NewFile`, `File.ReadAt`/`WriteAt`/`Seek`, `syscall.Open`/`Read`/`Close`
 - Metadata and permissions: `syscall.Stat`, `syscall.Stat_t`, `os.Chmod`, `FileMode.Perm`, umask
@@ -215,7 +215,7 @@ Example themes: grep-like line matcher over a file; walk a directory and summari
 
 ## Hard: Unix system programs (multi-file)
 
-Unix internals almost exclusively. The program structure and Go features exist to drive descriptors, processes, sockets, and files. Prefer syscall-level work over application features.
+Unix internals first, with real concurrency where the system needs it. The program structure and Go features exist to drive descriptors, processes, sockets, and files. Prefer syscall-level work over application features.
 
 - Program structure across `main.go` plus focused files such as `server.go`, `process.go`, or `parser.go`; `flag` for a small CLI surface
 - File descriptors: `os.NewFile`, `File.Fd()`, `net.FileListener`, `net.FileConn`, fd passing over Unix sockets with `Sendmsg`/`Recvmsg`
