@@ -175,7 +175,9 @@ Grading is opt-in. Write `GRADE.md` only when the user explicitly writes `ready 
 - What was good: concrete points, with `file:line` when useful.
 - What was wrong: bugs, missed edge cases, idiom or safety issues, whether a hint or a tool found them, and which cases the tests did not cover.
 - How to approach next time: 2 to 4 short, transferable steps for this kind of problem.
-- Keep it feedback, not a solution dump. Reference code by location instead of pasting the full answer.
+- Keep it feedback, not a solution dump. Reference the user's code by location instead of pasting their whole answer.
+- When a wrong point has a reusable fix, add one short snippet under it showing the idiom to reach for next time: language-tagged, 2 to 8 lines, and the general shape rather than the exercise's own solution.
+- Follow the snippet with one line on why it is better, for example that a sentinel error can be matched with `errors.Is` while a fresh inline error cannot.
 - Use the same rubric every session:
 
 | Score | Meaning |
@@ -189,7 +191,7 @@ Grading is opt-in. Write `GRADE.md` only when the user explicitly writes `ready 
 
 Template:
 
-```markdown
+````markdown
 # Workout grade
 
 - Language: <language>
@@ -211,6 +213,13 @@ Template:
 ## What was wrong
 
 - <point with file:line or tool message>
+- <point that has a reusable fix>
+
+  ```<language>
+  <2 to 8 line snippet of the idiom that avoids the problem>
+  ```
+
+  <one line on why it fits>
 
 ## How to approach next time
 
@@ -220,7 +229,7 @@ Template:
 ## Tools run
 
 - `<command>`: <result>
-```
+````
 
 ## Hint ladder
 
@@ -243,7 +252,7 @@ Give a complete worked solution only upon an explicit request such as `show solu
 - Prefer simple tasks over LeetCode-style puzzles or elaborate projects.
 - Optimize for the user typing code from memory. Never autocomplete or proactively implement the exercise.
 - Keep explanations concise; elaborate only upon request.
-- Keep code out of hints, answers, and reviews. Inline identifiers and signatures are fine; fenced code is not, except at the wrap-up or on an explicit `show solution` request.
+- Keep code out of hints, answers, and reviews. Inline identifiers and signatures are fine; fenced code is not, except at the wrap-up, on an explicit `show solution` request, or as the short idiom snippet allowed in `GRADE.md`.
 - Writing the minimal test scaffold to the workout directory is allowed; it is not the exercise solution.
 - Prepopulating typed stubs, types, imports, and CLI wiring under Prepopulated scaffolding is allowed; it is not the exercise solution. Never prepopulate logic.
 - Copying the skill's `assets/Makefile` into the workout directory is allowed and is not the exercise solution.
