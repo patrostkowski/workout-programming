@@ -6,15 +6,25 @@ Use portable C17. Pick the level at session start and keep every exercise inside
 
 Default location: `~/workouts/c/<topic>-<YYYYMMDD-HHMM>`.
 
+Create the scaffold with the skill's setup script:
+
+```sh
+"$CLAUDE_SKILL_DIR/scripts/new-workout.sh" c <topic>
+"$CLAUDE_SKILL_DIR/scripts/new-workout.sh" --dir ~/workouts/c/<slug> c <topic>
+```
+
+It creates the directory, `main.c`, an empty `testdata/`, and a `TASK.md` scaffold, then prints the workout directory. It never writes into an existing directory. Do not create these by hand.
+
+Fallback when the script is unavailable:
+
 ```sh
 mkdir -p ~/workouts/c
 mkdir ~/workouts/c/<slug>
-cd ~/workouts/c/<slug>
 ```
 
 The validator stays in the skill at `scripts/validate-c.sh` (default install: `~/.claude/skills/workout-programming/scripts/validate-c.sh`). Do not copy it into the workout directory.
 
-Start with one `main.c`:
+Start from the entry file the script wrote:
 
 ```c
 #include <stdio.h>

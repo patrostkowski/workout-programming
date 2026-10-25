@@ -8,6 +8,17 @@ This track is systems-oriented and assumes Linux. Easy tasks alternate Go intern
 
 Default location: `~/workouts/go/<topic>-<YYYYMMDD-HHMM>`.
 
+Create the scaffold with the skill's setup script:
+
+```sh
+"$CLAUDE_SKILL_DIR/scripts/new-workout.sh" go <topic>
+"$CLAUDE_SKILL_DIR/scripts/new-workout.sh" --dir ~/workouts/go/<slug> go <topic>
+```
+
+It creates the directory, `main.go`, `go.mod` from `go mod init workout`, a copy of `assets/Makefile`, an empty `testdata/`, and a `TASK.md` scaffold, then prints the workout directory. It never writes into an existing directory. Do not create these by hand.
+
+Fallback when the script is unavailable:
+
 ```sh
 mkdir -p ~/workouts/go
 mkdir ~/workouts/go/<slug>
@@ -19,9 +30,9 @@ The validator stays in the skill at `scripts/validate-go.sh` (default install: `
 
 The module gives the editor and Go tooling a consistent context. It uses a local name, adds no dependencies, and produces no build artifacts by itself.
 
-Copy the skill's `assets/Makefile` into the workout directory with the rest of the scaffold, so `make test` runs `go test -v ./` and `make run` runs `go run .`. Do not edit it per exercise.
+The copied `Makefile` is part of the script's scaffold, so `make test` runs `go test -v ./` and `make run` runs `go run .`. Do not edit it per exercise.
 
-Start with one `main.go`:
+Start from the entry file the script wrote:
 
 ```go
 package main

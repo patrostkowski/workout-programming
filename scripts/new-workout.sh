@@ -1,0 +1,237 @@
+#!/usr/bin/env bash
+# Creates a workout directory with its scaffold.
+# Usage: new-workout.sh [--dir DIR] [--base DIR] [language] [topic]
+set -euo pipefail
+
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+skill_dir=$(dirname "$script_dir")
+
+module_name=workout
+default_topic=workout
+language=go
+topic=$default_topic
+level=TODO
+explicit_dir=
+base=$HOME/workouts
+
+usage() {
+	cat <<'EOF'
+usage: new-workout.sh [--dir DIR] [--base DIR] [--level LEVEL] [language] [topic]
+
+  language      go (default) or c
+  topic         short topic slug for the directory name (default: workout)
+  --dir DIR     exact workout directory to create instead of
+                <base>/<language>/<topic>-<YYYYMMDD-HHMM>
+  --base DIR    base directory (default: ~/workouts)
+  --level LEVEL easy, medium, or hard, written to TASK.md
+
+Prints the absolute workout directory on the last line. Never writes into an
+existing directory. TASK.md is a scaffold with TODO markers for the coach to
+fill in, and testdata/ is created empty.
+EOF
+}
+
+die() {
+	printf 'error: %s\n' "$1" >&2
+	exit 1
+}
+
+while [ $# -gt 0 ]; do
+	case $1 in
+	-h | --help)
+		usage
+		exit 0
+		;;
+	-d | --dir)
+		[ $# -ge 2 ] || die "missing value for $1"
+		[ -n "$2" ] || die "empty value for $1"
+		explicit_dir=$2
+		shift 2
+		;;
+	-b | --base)
+		[ $# -ge 2 ] || die "missing value for $1"
+		[ -n "$2" ] || die "empty value for $1"
+		base=$2
+		shift 2
+		;;
+	-l | --level)
+		[ $# -ge 2 ] || die "missing value for $1"
+		case $2 in
+		easy | medium | hard) level=$2 ;;
+		*) die "unsupported level: $2 (expected easy, medium, or hard)" ;;
+		esac
+		shift 2
+		;;
+	-*)
+		printf 'error: unknown option: %s\n\n' "$1" >&2
+		usage >&2
+		exit 2
+		;;
+	*)
+		break
+		;;
+	esac
+done
+
+if [ $# -ge 2 ]; then
+	case $1 in
+	go | c) ;;
+	*) die "unsupported language: $1 (expected go or c)" ;;
+	esac
+fi
+
+case ${1:-} in
+go | c)
+	language=$1
+	shift
+	;;
+esac
+
+if [ $# -gt 0 ]; then
+	topic=$1
+	shift
+fi
+
+[ $# -eq 0 ] || die "too many arguments: $*"
+
+case $language in
+go | c) ;;
+*) die "unsupported language: $language (expected go or c)" ;;
+esac
+
+slug=$(printf '%s' "$topic" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-//; s/-$//')
+[ -n "$slug" ] || slug=$default_topic
+
+base=${base/#\~/$HOME}
+explicit_dir=${explicit_dir/#\~/$HOME}
+
+if [ -n "$explicit_dir" ]; then
+	workout_dir=$explicit_dir
+else
+	workout_dir=$base/$language/$slug-$(date +%Y%m%d-%H%M)
+fi
+
+if [ -e "$workout_dir" ]; then
+	die "workout directory already exists: $workout_dir"
+fi
+
+mkdir -p "$(dirname "$workout_dir")"
+mkdir "$workout_dir"
+
+created=()
+
+case $language in
+go)
+	cat >"$workout_dir/main.go" <<'EOF'
+package main
+
+func main() {
+}
+EOF
+	created+=(main.go)
+
+	if [ ! -f "$skill_dir/assets/Makefile" ]; then
+		die "missing asset: $skill_dir/assets/Makefile"
+	fi
+	cp "$skill_dir/assets/Makefile" "$workout_dir/Makefile"
+	created+=(Makefile)
+
+	if command -v go >/dev/null 2>&1; then
+		if ! output=$(cd "$workout_dir" && go mod init "$module_name" 2>&1); then
+			printf '%s\n' "$output" >&2
+			die "go mod init failed in $workout_dir"
+		fi
+		created+=(go.mod)
+	else
+		printf 'note: go not found, skipped go mod init\n' >&2
+	fi
+	entry_file=main.go
+	;;
+c)
+	cat >"$workout_dir/main.c" <<'EOF'
+#include <stdio.h>
+
+int main(void) {
+    return 0;
+}
+EOF
+	created+=(main.c)
+	entry_file=main.c
+
+	if ! command -v cc >/dev/null 2>&1; then
+		printf 'note: cc not found, the validator needs it\n' >&2
+	fi
+	;;
+esac
+
+workout_dir=$(cd "$workout_dir" && pwd)
+
+mkdir "$workout_dir/testdata"
+created+=(testdata/)
+
+case $language in
+go)
+	language_name=Go
+	test_file=main_test.go
+	make_targets='make test, make run'
+	;;
+c)
+	language_name=C
+	test_file=none
+	make_targets=none
+	;;
+esac
+
+cat >"$workout_dir/TASK.md" <<'EOF'
+# Workout task
+
+- Language: __LANGUAGE__
+- Level: __LEVEL__
+- Workout dir: __WORKOUT_DIR__
+- Entry file: __ENTRY_FILE__
+- Task files: TODO
+- Starting point: TODO
+- Test file: __TEST_FILE__
+- Test assets: TODO
+- Make targets: __MAKE_TARGETS__
+
+## Objective
+
+TODO
+
+## Signature
+
+`TODO`
+
+## Examples
+
+- `TODO` returns `TODO`
+
+## Docs
+
+- TODO: TODO
+
+## Constraints
+
+- TODO
+
+## Validation
+
+- `__VALIDATE__ __WORKOUT_DIR__`
+EOF
+
+sed -i \
+	-e "s|__LANGUAGE__|$language_name|g" \
+	-e "s|__LEVEL__|$level|g" \
+	-e "s|__WORKOUT_DIR__|$workout_dir|g" \
+	-e "s|__ENTRY_FILE__|$entry_file|g" \
+	-e "s|__TEST_FILE__|$test_file|g" \
+	-e "s|__MAKE_TARGETS__|$make_targets|g" \
+	-e "s|__VALIDATE__|$skill_dir/scripts/validate-$language.sh|g" \
+	"$workout_dir/TASK.md"
+created+=(TASK.md)
+
+printf 'created: %s\n' "${created[*]}"
+printf 'entry file: %s\n' "$workout_dir/$entry_file"
+printf 'validate: %s/scripts/validate-%s.sh %s\n' "$skill_dir" "$language" "$workout_dir"
+printf 'workout dir: %s\n' "$workout_dir"
