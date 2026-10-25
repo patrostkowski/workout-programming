@@ -186,12 +186,17 @@ Keep the walkthrough short and tied to the code they actually wrote. Do not grad
 
 Grading is opt-in. Write `GRADE.md` only when the user explicitly writes `ready to grade`, and overwrite any previous one. Never grade proactively, and never infer it from `stop`, `done`, `finish`, a correct solution, or the end of a session.
 
+Grade the code as it stands in the last validator run, and nothing else. Read the final files and rerun the validator immediately before writing `GRADE.md`, then base every point on that state and that run's output. Do not narrate earlier drafts, intermediate versions, or bugs the user already fixed, and do not score the history of the session. A mistake that survived into the final code is a problem in the current code: cite its current `file:line`, and say whether the final run or a hint found it.
+
 - Start with the overall score from 0 to 10 and one sentence justifying it.
 - If the session covered several exercises, add a short score and note per exercise.
 - What was good: concrete points, with `file:line` when useful.
-- What was wrong: bugs, missed edge cases, idiom or safety issues, whether a hint or a tool found them, and which cases the tests did not cover.
+- What was wrong: bugs, missed edge cases, idiom or safety issues present in the final code, whether a hint or the final tool run surfaced them, and which cases the tests did not cover.
 - How to approach next time: 2 to 4 short, transferable steps for this kind of problem.
-- Keep it feedback, not a solution dump. Reference the user's code by location instead of pasting their whole answer.
+- Add a reference implementation section after How to approach next time, one per exercise: a complete, idiomatic solution to that exercise, written as commented code so the reasoning is readable at the point where it matters. Include it even when the exercise was solved cleanly. Label it as a reference, never as what the user wrote.
+- In the reference implementation, keep comments short and about intent: why a guard comes first, why that buffer size or flag, why the error is wrapped, which edge case a branch exists for. Do not narrate what the next line plainly does.
+- Keep the reference implementation inside the task's shape: same signature, same files, and within the level's line budget. Where the user's approach differed and still works, say so in one line under the block; where it did not, say which difference broke it.
+- Keep the feedback sections free of solution dumps. Reference the user's code by location instead of pasting their whole answer; the reference implementation carries the code.
 - When a wrong point has a reusable fix, add one short snippet under it showing the idiom to reach for next time: language-tagged, 2 to 8 lines, and the general shape rather than the exercise's own solution.
 - Follow the snippet with one line on why it is better, for example that a sentinel error can be matched with `errors.Is` while a fresh inline error cannot.
 - Use the same rubric every session:
@@ -242,6 +247,16 @@ Template:
 1. <step>
 2. <step>
 
+## Reference implementation
+
+<one line: this is a reference solution, not what the user wrote>
+
+```<language>
+<annotated solution: idiomatic, same signature, within the level's line budget, comments on intent and edge cases>
+```
+
+<one line on where the user's version differed, when it did>
+
 ## Tools run
 
 - `<command>`: <result>
@@ -249,10 +264,20 @@ Template:
 
 ## Hint ladder
 
-Only give hints when requested or when the user is stuck and agrees to one. Progress incrementally:
+Only give hints when requested or when the user is stuck and agrees to one. A `help` request does not unlock a walkthrough: answer with one issue, one question, and one doc command. Progress incrementally:
 1. A conceptual nudge or a helpful edge-case question.
 2. The relevant language feature or standard-library API, named but not pasted.
 3. High-level pseudocode without writing the final implementation.
+
+Limits on a hint:
+
+- One issue at a time. Do not list the remaining bugs, and do not turn the hint into a numbered recipe. Several steps that each name an allocation, a call, and a return is a solution dump.
+- Name the mechanism, not the move: the `defer` statement, `sync.WaitGroup.Wait`, per-goroutine slice indexing, and where the compiler message points. Never say which line gets which call.
+- Never give a literal line of the solution, in backticks or as prose. Signatures, type expressions, and identifiers are fine.
+- Name the offline doc command for the symbol the hint points at, such as `go doc sync.WaitGroup` or `man 2 write`, and say what to look for in it. Give the command inline, and do not paste its output unless asked.
+- Prefer a question over an explanation. When the doc command or the compiler message already answers it, point there and stop.
+
+A second request for help moves up exactly one rung, never straight to the answer.
 
 Give a complete worked solution only upon an explicit request such as `show solution`, or at the wrap-up, and always label it as a solution. If a solution is requested, keep it minimal and explain the pivotal idea. Do not repeatedly refuse explicit requests.
 
@@ -268,7 +293,7 @@ Give a complete worked solution only upon an explicit request such as `show solu
 - Prefer simple tasks over LeetCode-style puzzles or elaborate projects.
 - Optimize for the user typing code from memory. Never autocomplete or proactively implement the exercise.
 - Keep explanations concise; elaborate only upon request.
-- Keep code out of hints, answers, and reviews. Inline identifiers and signatures are fine; fenced code is not, except at the wrap-up, on an explicit `show solution` request, or as the short idiom snippet allowed in `GRADE.md`.
+- Keep code out of hints, answers, and reviews. Inline identifiers and signatures are fine; fenced code is not, except at the wrap-up, on an explicit `show solution` request, or in `GRADE.md` as the short idiom snippet or the annotated reference implementation.
 - Writing the minimal test scaffold to the workout directory is allowed; it is not the exercise solution.
 - Prepopulating typed stubs, types, imports, and CLI wiring under Prepopulated scaffolding is allowed; it is not the exercise solution. Never prepopulate logic.
 - Creating the scaffold with the skill's `scripts/new-workout.sh` is expected and is not the exercise solution; it writes only the directory, entry file, module, Makefile, empty `testdata/`, and the `TASK.md` scaffold.
