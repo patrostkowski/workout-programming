@@ -1,10 +1,15 @@
-# Hard topics
+# Go topic areas
 
-A small program spread over multiple files. Hard includes every easy and medium topic, plus the hard areas. Rotate across areas so a session covers more than one of them, but a single task only needs one or two areas.
+## Areas
 
-## Go: inherited from easy
+- `Language internals`: Go basics, strings, bytes, slices, maps, interfaces, `runtime`.
+- `Unix and concurrency`: files, pipes, processes, signals, sockets, `/proc`, goroutines, channels, `select`.
 
-Go basics:
+## Easy
+
+One main idea, at most 20 lines of user code. Alternate between Go internals and Unix basics, so a session covers both.
+
+### Go basics
 
 - Variables, short declarations, zero values, constants
 - `for`, `range`, `if`, `switch`
@@ -16,7 +21,7 @@ Go basics:
 - Interfaces, `error`, `errors.Is`
 - `runtime` basics: `GOOS`, `NumCPU`, `NumGoroutine`, `ReadMemStats`
 
-Unix basics:
+### Unix basics
 
 - Files and permissions
 - Directories and paths
@@ -28,9 +33,11 @@ Unix basics:
 - One socket connect or listen
 - One small syscall
 
-## Go: inherited from medium
+## Medium
 
-Unix internals:
+Areas added at this level. Medium includes every easy topic. Stay on Unix internals and use Go as the vehicle; add goroutines, channels, and `select` where the task calls for them.
+
+### Unix internals
 
 - Descriptors and low-level file access
 - Metadata and permissions
@@ -43,7 +50,7 @@ Unix internals:
 - `/proc` and `/sys` parsing
 - File locking and binary data
 
-Concurrent Go:
+### Concurrent Go
 
 - Goroutines and channels
 - Buffered vs unbuffered channels
@@ -54,7 +61,11 @@ Concurrent Go:
 - Fan-in from several goroutines
 - Shared state behind a mutex
 
-## Go: system programs
+## Hard
+
+Areas added at this level. Hard includes every easy and medium topic.
+
+### System programs
 
 - TCP and Unix socket servers
 - Process supervision and reaping
@@ -67,7 +78,7 @@ Concurrent Go:
 - Small CLI surface with `flag`
 - HTTP only as a health or admin endpoint
 
-## Go: concurrent structure
+### Concurrent structure
 
 - Worker pools
 - Fan-in and fan-out
@@ -77,31 +88,3 @@ Concurrent Go:
 - Rate limiting with timers and channels
 - Pipeline stages connected by channels
 - Coordination of several moving parts with `sync.WaitGroup` and `select`
-
-## C: inherited from easy
-
-- Types, initialization, integer arithmetic
-- `for`, `while`, `do ... while`
-- Arrays and simple string handling
-- Functions and parameters
-- Simple pointers, `&` and `*`
-- Small input and output routines
-
-## C: inherited from medium
-
-- Pointer arithmetic within array bounds
-- Array decay and `sizeof`
-- Structs and arrays of structs
-- Dynamic arrays with checked sizes
-- Bounded string handling
-- In-place array algorithms
-- Multi-function programs with clear contracts
-
-## C: added at hard
-
-- Dynamic arrays with documented ownership
-- Singly linked lists with cleanup
-- Tokenizers over caller-provided storage
-- File and buffer utilities
-- Multi-file programs with clear contracts
-- Manual error propagation and cleanup paths

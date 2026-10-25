@@ -30,7 +30,7 @@ Start a new Claude Code session if the command doesn't appear immediately.
 
 The flow is the same for every language:
 
-1. Run `/workout-programming`. When you do not pass them in the command, the skill asks three quick questions: language (`Go` default or `C`), level, and topic (`Anything` default, where it picks and rotates). Anything you pass is not asked again.
+1. Run `/workout-programming`. When you do not pass them in the command, the skill asks three quick questions: language (`Go` default or `C`), level, and topic. The topic options are `Random` (the default, where it picks and rotates) plus the areas the language's topic file declares: `Language internals` and `Unix and concurrency` for Go, `Language internals` for C. Anything you pass is not asked again.
    - **easy:** at most 20 lines of user code, one small function or snippet; in Go, Go internals alternating with Unix basics
    - **medium:** at most 100 lines, several constructs or standard library calls; in Go, Unix internals with Go as the vehicle (descriptors, pipes, processes, signals, sockets, `/proc`)
    - **hard:** a small program over multiple files; in Go, deeper Unix internals (servers, process supervision, fd passing, epoll, inotify, mmap)
@@ -41,10 +41,10 @@ The flow is the same for every language:
    The directory and base scaffold come from `scripts/new-workout.sh`, which refuses an existing directory and prints the resulting path. It also creates an empty `testdata/` and a `TASK.md` scaffold with the deterministic fields filled and `TODO` markers the coach replaces with the exercise. Add `--dir` to use a path you name and `--level` to record the level in `TASK.md`.
 
    Go workouts also get a very small test file, normally `main_test.go`, with a table-driven test of at least 3 cases. The tests cover some cases, not the full scope, and the function stub is added so they compile. Tests for file and socket tasks use temp dirs, loopback ports, or local sockets.
-   Both tracks get `testdata/` fixtures for the examples, and `TASK.md` lists each fixture with its contents plus 2 to 4 doc links (`pkg.go.dev`, `go.dev`, `man7.org`).
+   Both tracks get `testdata/` fixtures for the examples, and `TASK.md` lists each fixture with its contents plus 2 to 4 doc links to authoritative sources for that language.
    Once the scaffold is written, the skill opens the workout directory in VS Code with `code <dir>` when the `code` CLI is available. It never installs the CLI.
 3. Submit your code. The skill reads it, runs the validator script against the workout directory, and points at the smallest issue without giving you the solution.
-4. Say `stop` or `done` when you are finished. It runs full validation once more, explains the solution, and writes `GRADE.md` with a 0-10 score, what was good, what was wrong, and how to approach the problem next time.
+4. Say `stop` or `done` when you are finished. It runs full validation once more and explains the solution. Say `ready to grade` when you want a `GRADE.md` with a 0-10 score, what was good, what was wrong, and a reference implementation.
 
 Each workout directory gets a `TASK.md` with the current exercise, so you can resume after clearing the conversation: run `/workout-programming resume ~/workouts/<language>/<dir>` or start in that directory and run `/workout-programming resume`. A finished session leaves `GRADE.md` in the same directory.
 
@@ -71,6 +71,9 @@ The script prints the raw tool output plus a `PASS`/`FAIL`/`WARN`/`NOTE` summary
 - `SKILL.md`: shared invocation, levels, setup flow, validation loop, coaching, hint policy, wrap-up
 - `references/go.md`: Go setup, test scaffold, systems curriculum, validation, concept map
 - `references/c.md`: C setup, scope per level, validation, concept map and safety notes
+- `references/topics/README.md`: topic file shape and the steps for adding a language
+- `references/topics/go.md`: Go areas and cumulative easy, medium, and hard topics
+- `references/topics/c.md`: C areas and cumulative easy, medium, and hard topics
 - `scripts/new-workout.sh`: creates the workout directory, entry file, Go module, Makefile, empty `testdata/`, and the `TASK.md` scaffold
 - `scripts/validate-go.sh`: Go validator, invoked with a workout directory
 - `scripts/validate-c.sh`: C validator, invoked with a workout directory
