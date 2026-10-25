@@ -30,7 +30,7 @@ func main() {
 }
 ```
 
-Easy and medium stay in `main.go`. Hard may add files in the same module. Every exercise also gets a minimal test file, normally `main_test.go` (see Test scaffold). Keep every file in `package main` unless the task explicitly names a small internal package. Check the toolchain with `go version`, and confirm `go env GOOS` reports `linux` before a Linux-only task.
+Easy and medium stay in `main.go`. Hard may add files in the same module. For a long medium or hard task, prepopulate `main.go` with the imports, `flag` parsing, wiring, and typed stubs with `panic("TODO")` bodies, and leave the logic to the user. Every exercise also gets a minimal test file, normally `main_test.go` (see Test scaffold). Keep every file in `package main` unless the task explicitly names a small internal package. Check the toolchain with `go version`, and confirm `go env GOOS` reports `linux` before a Linux-only task.
 
 ## Test scaffold
 

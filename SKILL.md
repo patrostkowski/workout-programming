@@ -39,7 +39,7 @@ Each level has its own topic list, and the lists are cumulative: medium contains
 - Medium: [references/topics/medium.md](references/topics/medium.md)
 - Hard: [references/topics/hard.md](references/topics/hard.md)
 
-Use the question tool (`AskUserQuestion`) when it is available; otherwise ask a short numbered question. State the language, level, and file scope in every task. Line limits apply to the user's code, not to the task text or generated tests.
+Use the question tool (`AskUserQuestion`) when it is available; otherwise ask a short numbered question. State the language, level, and file scope in every task. Line limits apply to the code the user writes, not to prepopulated stubs, the task text, or generated tests.
 
 ## Session setup
 
@@ -47,11 +47,22 @@ Setup has the same shape for every language. The concrete commands live in the s
 
 1. If a `TASK.md` was found (explicit path, `resume`, or the current directory), skip the rest of setup and resume that exercise.
 2. Resolve the language (Go by default) and the level. Choose a fresh directory: `~/workouts/<language>/<topic>-<YYYYMMDD-HHMM>` by default, or a path the user names. Never write into a non-empty directory or the user's project.
-3. Create the scaffold from the reference for the first exercise, always with a single entry file, plus any minimal test scaffold the reference requires and the test assets the examples need. Keep assets in `testdata/` inside the workout directory. In the Go track, also copy `assets/Makefile` from this skill into the workout directory so `make test` and `make run` work out of the box. Never copy the validator into the workout directory; it stays in the skill.
+3. Create the scaffold from the reference for the first exercise, always with a single entry file, plus any minimal test scaffold the reference requires and the test assets the examples need. Keep assets in `testdata/` inside the workout directory. For long medium and hard tasks, prepopulate the entry file and any extra files with typed stubs and wiring as described in Prepopulated scaffolding. In the Go track, also copy `assets/Makefile` from this skill into the workout directory so `make test` and `make run` work out of the box. Never copy the validator into the workout directory; it stays in the skill.
 4. Write the first exercise to `TASK.md` in the workout directory, including its test assets and doc links (see Task file).
-5. Tell the user the directory, the entry file, the minimal test file when present, the test assets, the doc links, that `TASK.md` holds the current exercise, and how to run the validator against that directory. In the Go track, also say that `make test` runs the tests and `make run` runs the program. Easy and medium tasks stay in the entry file. Hard tasks may add more files; create them with package or prototype stubs only when the layout must be explicit, and never fill them in.
+5. Tell the user the directory, the entry file, the minimal test file when present, the test assets, the doc links, that `TASK.md` holds the current exercise, and how to run the validator against that directory. In the Go track, also say that `make test` runs the tests and `make run` runs the program. Easy tasks stay in the entry file with no prepopulation. Long medium tasks prepopulate the entry file; hard tasks may also add files with typed stubs. Say which stubs are provided and which behavior is left to the user, and never fill them in.
 6. Open the workout directory in VS Code with `code <absolute workout dir>` once the scaffold exists. If the `code` CLI is missing, say so in one line and continue; never install it, and never open any path other than the workout directory.
 7. Verify the toolchain is installed. If it is missing, say so and skip setup.
+
+## Prepopulated scaffolding
+
+Long medium and hard tasks should spend the session on the concept, not on typing boilerplate the task already spells out. Prepopulate those files before the user starts.
+
+- Prepopulate when the task needs CLI parsing, several types, several files, or setup that the task text already states. Easy tasks and short medium tasks start from the empty entry file.
+- In the entry file, put the package clause, the expected imports, the entry point with its flag or argument parsing, and calls to typed stubs.
+- In extra files, put type definitions, constants, sentinel errors, interface declarations, and function or method signatures with bodies that `panic("TODO")`.
+- Never prepopulate the logic: no loop bodies, no syscall sequences, no goroutine or channel bodies, no error handling that the exercise asks for, and nothing that makes a test pass.
+- Keep every stub compiling and panicking, so the first validator run fails as expected.
+- Record what is provided in `TASK.md` and say it again in the chat, so the user knows which parts to write.
 
 ## Task file (TASK.md)
 
@@ -59,7 +70,8 @@ Every workout directory gets a `TASK.md` describing the current exercise. It is 
 
 - Create it during setup with the first exercise and overwrite it each time you assign a new one.
 - Keep it task-only: no hints, no review notes, no solution.
-- Include the workout directory, language, level, entry and task files, objective, signature or prototype, examples, constraints, test assets, doc links, and how to validate. Write the concrete validator command, using the actual skill path when it is not the default install.
+- Include the workout directory, language, level, entry and task files, starting point, objective, signature or prototype, examples, constraints, test assets, doc links, and how to validate. Write the concrete validator command, using the actual skill path when it is not the default install.
+- Say in the starting point what is prepopulated and what the user still needs to write.
 - List each test asset by path and say what it contains, so it can be recreated if lost.
 - List 2 to 4 doc links, taken from the selected language reference's Doc links section. Link the exact symbol the task uses, not a search page.
 
@@ -73,6 +85,7 @@ Template:
 - Workout dir: <absolute path>
 - Entry file: <main.go or main.c>
 - Task files: <files the exercise may touch>
+- Starting point: <empty entry file, or the prepopulated stubs and what is left to write>
 - Test file: <path/to/test file or none>
 - Test assets: <paths under testdata/ with contents, or none>
 - Make targets: <make test and make run, or none>
@@ -124,7 +137,7 @@ Run the script instead of invoking the underlying tools one by one. Toolchain ch
 
 ## Workout protocol
 
-1. **Give one problem:** state language, level, focus, objective, function signature or minimal starter stub in the chat, 2 to 3 input/output examples, constraints, the files the task touches, the `testdata/` assets the examples use, and 2 to 4 doc links. Write the same exercise to `TASK.md`, overwriting the previous one. When the reference defines a test scaffold, refresh it, add the required signature stub so the tests compile, refresh `testdata/`, and mention that the tests cover only some cases. Avoid trivia, trick questions, dependencies, and large projects. Do not write the implementation.
+1. **Give one problem:** state language, level, focus, objective, function signature or minimal starter stub in the chat, 2 to 3 input/output examples, constraints, the files the task touches, the `testdata/` assets the examples use, and 2 to 4 doc links. For a prepopulated task, say what the stubs already cover and what is left to write. Write the same exercise to `TASK.md`, overwriting the previous one. When the reference defines a test scaffold, refresh it, add the required signature stub so the tests compile, refresh `testdata/`, and mention that the tests cover only some cases. Avoid trivia, trick questions, dependencies, and large projects. Do not write the implementation.
 2. **Wait for code:** do not present pseudocode or reveal the approach up front. Ask the user to write the function and save it or paste it. Do not edit their code unless explicitly asked.
 3. **Validate an attempt:** read the submitted code first, then run the skill's validator for the language against the workout directory. The script is standing-consented inside the workout directory; ask before dependency or network commands, or anything that writes outside it. Report tool output as tool output and inspection as inspection; never invent results. A failing test before the user writes code is expected, because the stub panics.
 4. **If incorrect:** report the smallest actionable issue, with `file:line` and the exact compiler, linter, or sanitizer message when available. One issue at a time. Pinpoint the problem; never paste a working solution, a full patch, or code that trivially completes the exercise. Invite a revision.
@@ -232,6 +245,7 @@ Give a complete worked solution only upon an explicit request such as `show solu
 - Keep explanations concise; elaborate only upon request.
 - Keep code out of hints, answers, and reviews. Inline identifiers and signatures are fine; fenced code is not, except at the wrap-up or on an explicit `show solution` request.
 - Writing the minimal test scaffold to the workout directory is allowed; it is not the exercise solution.
+- Prepopulating typed stubs, types, imports, and CLI wiring under Prepopulated scaffolding is allowed; it is not the exercise solution. Never prepopulate logic.
 - Copying the skill's `assets/Makefile` into the workout directory is allowed and is not the exercise solution.
 - Writing test assets to `testdata/` is allowed and is not the exercise solution. Keep them tiny and inspectable, and record each one with its exact contents in `TASK.md`.
 - Give doc links to authoritative sources only: `pkg.go.dev`, `go.dev`, `man7.org`, or the language's official manual. Never link tutorials, blogs, forums, or generated summaries, and never fetch a link to check it. Say how to read the same page offline, for example `go doc syscall.Read` or `man 2 open`.

@@ -24,7 +24,7 @@ int main(void) {
 }
 ```
 
-Easy and medium stay in `main.c`. Hard may add files and must name the source files to pass to the validator. Check the toolchain with `cc --version`.
+Easy and medium stay in `main.c`. Hard may add files and must name the source files to pass to the validator. For a long medium or hard task, prepopulate `main.c` with the includes, structs, and function prototypes, and leave the logic to the user. Check the toolchain with `cc --version`.
 
 ## Test assets
 
