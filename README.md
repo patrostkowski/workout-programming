@@ -14,6 +14,12 @@ git clone git@github.com:patrostkowski/workout-programming.git \
 
 The repo is private, so the machine needs SSH access to the account. Move any existing `workout-programming` folder aside first; `git clone` refuses a non-empty directory. Start a new session afterwards.
 
+To use a terminal editor such as nvim, export it in your shell profile before starting Claude Code:
+
+```sh
+export WORKOUT_PROGRAMMING_EDITOR=nvim
+```
+
 Update with:
 
 ```sh
@@ -35,11 +41,21 @@ It asks for language (`Go` default or `C`), level, and topic unless you pass the
 - **medium:** one problem, at most 100 lines, several constructs and some standard library
 - **hard:** a small multi-file program
 
-It then creates `~/workouts/<language>/<dir>/` via `scripts/new-workout.sh`: `TASK.md`, `testdata/` fixtures, and for Go a module plus a small table-driven test. It opens the directory in VS Code when `code` is available.
+It then creates `~/workouts/<language>/<dir>/` via `scripts/new-workout.sh`: `TASK.md`, `testdata/` fixtures, and for Go a module plus a small table-driven test. It opens the directory in your editor when one is available.
 
 Submit your code and it points at the smallest issue without giving the solution. Ask for `hint`, `next`, `harder`, `easier`, `skip`, or `show solution` at any time. Say `done` to finish, or `ready to grade` for a `GRADE.md` with a 0 to 10 score and a reference implementation.
 
 Resume later with `/workout-programming resume ~/workouts/<language>/<dir>`; `TASK.md` holds the exercise.
+
+## Editor
+
+Setup opens the workout directory in `WORKOUT_PROGRAMMING_EDITOR`, then `$VISUAL`/`$EDITOR`, then the first of `code`, `code-insiders`, `codium`, `cursor`, `zed`, `subl` on `PATH`. GUI editors open directly. Terminal editors such as `nvim` cannot run inside a Claude Code session, so the skill prints the command instead:
+
+```sh
+cd ~/workouts/go/slices-20261025-1930 && nvim .
+```
+
+Run it in your own shell, save the files, and tell the coach to review. To pin an editor, export `WORKOUT_PROGRAMMING_EDITOR` in your shell profile as shown in Install.
 
 ## Validation
 
@@ -58,4 +74,5 @@ The directory defaults to the current one. Go runs `gofmt`, `go vet`, `go test`,
 - `references/<language>.md`: per-language setup, scope, validation, concept map
 - `references/topics/<language>.md`: areas and cumulative topics per level
 - `scripts/new-workout.sh`: workout scaffold
+- `scripts/open-workout.sh`: opens the workout directory in the user's editor
 - `scripts/validate-go.sh`, `scripts/validate-c.sh`: validators

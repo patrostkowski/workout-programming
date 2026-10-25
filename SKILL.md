@@ -66,7 +66,13 @@ Setup has the same shape for every language. The concrete commands live in the s
 4. Add the exercise-specific scaffold: the minimal test scaffold the reference requires and the test assets the examples need, written into the existing `testdata/`. For long medium and hard tasks, prepopulate the entry file and any extra files with typed stubs and wiring as described in Prepopulated scaffolding. Never copy the validator into the workout directory; it stays in the skill.
 5. Overwrite the `TASK.md` scaffold with the first exercise, replacing every `TODO` and including its test assets and doc links (see Task file).
 6. Tell the user the directory, the entry file, the minimal test file when present, the test assets, the doc links, that `TASK.md` holds the current exercise, and how to run the validator against that directory. If the language reference provides make targets, say what each one runs. Easy tasks stay in the entry file with no prepopulation. Long medium tasks prepopulate the entry file; hard tasks may also add files with typed stubs. Say which stubs are provided and which behavior is left to the user, and never fill them in.
-7. Open the workout directory in VS Code with `code <absolute workout dir>` once the scaffold exists. If the `code` CLI is missing, say so in one line and continue; never install it, and never open any path other than the workout directory.
+7. Open the workout directory with the skill's opener once the scaffold exists:
+
+   ```sh
+   "$CLAUDE_SKILL_DIR/scripts/open-workout.sh" <absolute workout dir>
+   ```
+
+   It uses `WORKOUT_PROGRAMMING_EDITOR`, then `$VISUAL`, then `$EDITOR`, then the first GUI launcher on `PATH`: `code`, `code-insiders`, `codium`, `cursor`, `zed`, `subl`. It launches GUI editors and prints a `cd ... && ...` line for terminal editors such as `nvim`, `vim`, or `nano`. Relay that line to the user and continue; never run a terminal editor yourself. If it reports no editor, say so in one line and continue. Never install an editor and never open any path other than the workout directory.
 8. Verify the toolchain is installed. If it is missing, say so and skip setup.
 
 ## Prepopulated scaffolding
@@ -303,7 +309,7 @@ Give a complete worked solution only upon an explicit request such as `show solu
 - Writing test assets to `testdata/` is allowed and is not the exercise solution. Keep them tiny and inspectable, and record each one with its exact contents in `TASK.md`.
 - Give doc links to authoritative sources only: the doc sources named in the selected language reference. Never link tutorials, blogs, forums, or generated summaries, and never fetch a link to check it. Say how to read the same page offline with that language's doc command, for example `go doc <symbol>` or `man 2 <call>`.
 - Stay inside the workout directory when creating, editing, running, or linting code. Tests may use the language's temp-directory facility for temporary files and sockets.
-- Opening the workout directory with `code <absolute workout dir>` after setup is allowed; that one call is the only editor or external app launch.
+- Opening the workout directory with `scripts/open-workout.sh` after setup is allowed; that one call is the only editor or external app launch. Never launch a terminal editor such as `nvim`, `vim`, or `nano` yourself, even through the opener; hand the printed command to the user.
 - Run validation only through the language's validator script pointed at the workout directory; do not invoke its formatter, vet, test, build, or sanitizer commands separately, and never copy the script into the workout directory.
 - Apply the accuracy checks in the selected language reference; do not import one language's rules into another.
 - If the user's preferred language, topic, or level is explicit, honor it rather than rigidly following the curriculum order.
