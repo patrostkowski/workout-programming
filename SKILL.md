@@ -64,9 +64,9 @@ Setup has the same shape for every language. The concrete commands live in the s
    ```
 
    Use `--dir` when the user names an exact path, `--base` to place the dated directory under another root, and `--level` so `TASK.md` carries the level. The script prints the absolute workout directory on its last line; use that path everywhere below.
-5. Add the exercise-specific scaffold: the minimal test scaffold the reference requires and the test assets the examples need, written into the existing `testdata/`. For long medium and hard tasks, prepopulate the entry file and any extra files with typed stubs and wiring as described in Prepopulated scaffolding. Never copy the validator into the workout directory; it stays in the skill.
+5. Add the exercise-specific scaffold: the minimal test scaffold the reference requires and the test assets the examples need, written into the existing `testdata/`. At any level, the entry file may get a run harness that calls the user's function, as described in Run harness. For long medium and hard tasks, prepopulate the entry file and any extra files with typed stubs and wiring as described in Prepopulated scaffolding. Never copy the validator into the workout directory; it stays in the skill.
 6. Overwrite the `TASK.md` scaffold with the first exercise, replacing every `TODO` and including its test assets and doc links (see Task file).
-7. Tell the user the directory, the entry file, the minimal test file when present, the test assets, the doc links, that `TASK.md` holds the current exercise, and how to run the validator against that directory. If the language reference provides make targets, say what each one runs. Easy tasks stay in the entry file with no prepopulation. Long medium tasks prepopulate the entry file; hard tasks may also add files with typed stubs. Say which stubs are provided and which behavior is left to the user, and never fill them in.
+7. Tell the user the directory, the entry file, the minimal test file when present, the test assets, the doc links, that `TASK.md` holds the current exercise, and how to run the validator against that directory. If the language reference provides make targets, say what each one runs. Easy tasks stay in the entry file with at most a run harness. When a run harness is provided, say what it sets up, what it calls, and what it prints. Long medium tasks prepopulate the entry file; hard tasks may also add files with typed stubs. Say which stubs are provided and which behavior is left to the user, and never fill them in.
 8. Open the workout directory with the skill's opener once the scaffold exists:
 
    ```sh
@@ -80,12 +80,26 @@ Setup has the same shape for every language. The concrete commands live in the s
 
 Long medium and hard tasks should spend the session on the concept, not on typing boilerplate the task already spells out. Prepopulate those files before the user starts.
 
-- Prepopulate when the task needs CLI parsing, several types, several files, or setup that the task text already states. Easy tasks and short medium tasks start from the empty entry file.
+- Prepopulate when the task needs CLI parsing, several types, several files, or setup that the task text already states. Easy tasks and short medium tasks start from the entry file with only the function stub and, optionally, a run harness.
 - In the entry file, put the package clause, the expected imports, the entry point with its flag or argument parsing, and calls to typed stubs.
 - In extra files, put type definitions, constants, sentinel errors, interface declarations, and function or method signatures with bodies that `panic("TODO")`.
-- Never prepopulate the logic: no loop bodies, no syscall sequences, no goroutine or channel bodies, no error handling that the exercise asks for, and nothing that makes a test pass.
+- Never prepopulate the logic the exercise asks for: no loop bodies, no syscall sequences, no goroutine or channel bodies, no error handling that the exercise asks for, and nothing that makes a test pass. A run harness is the only code outside stubs that may carry real logic.
 - Keep every stub compiling and panicking, so the first validator run fails as expected.
 - Record what is provided in `TASK.md` and say it again in the chat, so the user knows which parts to write.
+
+### Run harness
+
+At any level, including easy, the entry point may hold a small run harness so the language's run command (`go run .`, `make run`, or what the reference documents) exercises the user's function end to end.
+
+- The harness sets up what the function needs, calls it with the task's example inputs, and prints each result or error.
+- Example: for `echoLine(addr, msg string) (string, error)`, `main` starts a local TCP echo server on `127.0.0.1:0` in a goroutine, calls `echoLine` with the listener address and a message, and prints the reply.
+- The harness may use real code such as listeners, goroutines, temp files, or child processes, because it is the environment, not the exercise.
+- The harness never implements, duplicates, or hints at the behavior the user writes. When the exercise is the peer itself, for example writing the server, do not provide that peer.
+- Keep it short, standard library only, and local: loopback addresses, the temp directory, no outside network.
+- It terminates on its own within the validator's `RUN_TIMEOUT`: serve a bounded number of connections, then close and exit.
+- Before the user writes code, running it hits the stub's `panic("TODO")`; that is expected.
+- Harness lines never count toward the user code limit. Record in `TASK.md` under Starting point what the harness sets up, calls, and prints.
+- Skip it when tests already cover the behavior well and a run adds nothing, or when the task is itself the entry point.
 
 ## Task file (TASK.md)
 
@@ -98,6 +112,21 @@ Every workout directory gets a `TASK.md` describing the current exercise. It is 
 - List each test asset by path and say what it contains, so it can be recreated if lost.
 - List 2 to 4 doc links, taken from the selected language reference's Doc links section. Link the exact symbol the task uses, not a search page.
 
+### Writing constraints
+
+Constraints are the spec the user codes against, so every one must be readable once and checkable without guessing.
+
+- Use the four subsections in this order: Behavior, Errors, Limits, Tests. Write `- none` under one that has nothing, never drop it.
+- One rule per bullet, one sentence, in the shape `<condition>: <exact result>`. Split any bullet that joins two rules with "and", ";", or a second sentence.
+- Name the exact input and the exact output: values, return tuple, file contents, mode. Never write "handle", "properly", "correctly", "gracefully", or "as expected".
+- Behavior holds success-path rules only. Every failure case goes under Errors with the full return values and the `errors.Is` or `errors.As` target, or the return code and `errno` in C.
+- When the user must declare an identifier, such as a sentinel error, say so in its Errors bullet with its exact name: "declare `errInvalidLine` at package level".
+- Keep error message contents to one bullet of their own, listing the exact fields the message must carry.
+- Limits uses fixed wording: `Code: at most <N> lines of user code in <file>`, then `Dependencies: standard library only`, then any task-specific limit such as portability or a file mode. "User code" counts the non-blank, non-comment lines the user writes; the package clause, imports, and provided stubs do not count. Say whether `main` must do something, may stay empty, or holds a provided run harness the user must not change.
+- Tests name cases by the same short names the test file uses. Never list the uncovered cases, and never write "the tests cover some of these" as prose.
+- Do not repeat an example as a constraint, and do not hide rules in the Objective or Starting point. A rule lives in Constraints exactly once.
+- Use the same wording for the same rule across tasks, so a returning user recognizes it.
+
 Template:
 
 ```markdown
@@ -108,7 +137,7 @@ Template:
 - Workout dir: <absolute path>
 - Entry file: <main.go or main.c>
 - Task files: <files the exercise may touch>
-- Starting point: <empty entry file, or the prepopulated stubs and what is left to write>
+- Starting point: <empty entry file, or the prepopulated stubs and what is left to write; the run harness and what it prints, when provided>
 - Test file: <path/to/test file or none>
 - Test assets: <paths under testdata/ with contents, or none>
 - Make targets: <make test and make run, or none>
@@ -133,7 +162,22 @@ Template:
 
 ## Constraints
 
-- <constraint>
+### Behavior
+
+- <condition>: <exact result>
+
+### Errors
+
+- <condition>: returns `<values>`, and `errors.Is(err, <target>)` holds
+
+### Limits
+
+- Code: at most <N> lines of user code in `<entry file>`
+- Dependencies: standard library only
+
+### Tests
+
+- Covered: <case>, <case>
 
 ## Validation
 
@@ -383,6 +427,7 @@ Give a complete worked solution only upon an explicit request such as `show solu
 - Keep code out of hints, answers, and reviews. Inline identifiers and signatures are fine; fenced code is not, except at the wrap-up, on an explicit `show solution` request, or in `GRADE.md` as the short idiom snippet or the annotated reference implementation.
 - Writing the minimal test scaffold to the workout directory is allowed; it is not the exercise solution.
 - Prepopulating typed stubs, types, imports, and CLI wiring under Prepopulated scaffolding is allowed; it is not the exercise solution. Never prepopulate logic.
+- Writing a run harness in the entry point under Run harness is allowed at any level; it is not the exercise solution. It never implements the user's behavior and always exits on its own.
 - Creating the scaffold with the skill's `scripts/new-workout.sh` is expected and is not the exercise solution; it writes only the directory, entry file, module, Makefile, empty `testdata/`, and the `TASK.md` scaffold.
 - Writing test assets to `testdata/` is allowed and is not the exercise solution. Keep them tiny and inspectable, and record each one with its exact contents in `TASK.md`.
 - Give doc links to authoritative sources only: the doc sources named in the selected language reference. Never link tutorials, blogs, forums, or generated summaries, and never fetch a link to check it. Say how to read the same page offline with that language's doc command, for example `go doc <symbol>` or `man 2 <call>`.

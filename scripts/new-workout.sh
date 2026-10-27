@@ -213,7 +213,22 @@ TODO
 
 ## Constraints
 
-- TODO
+### Behavior
+
+- TODO: TODO
+
+### Errors
+
+- TODO: TODO
+
+### Limits
+
+- Code: at most TODO lines of user code in `__ENTRY_FILE__`
+- Dependencies: standard library only
+
+### Tests
+
+- Covered: TODO
 
 ## Validation
 
