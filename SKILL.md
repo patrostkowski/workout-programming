@@ -196,10 +196,16 @@ Keep the walkthrough short and tied to the code they actually wrote. Do not grad
 
 Grading is opt-in. Write `GRADE.md` only when the user explicitly writes `ready to grade`, and overwrite any previous one. Never grade proactively, and never infer it from `stop`, `done`, `finish`, a correct solution, or the end of a session.
 
+The unit of grading is the workout directory, not the chat session. Each `GRADE.md` covers only the exercises whose code lives in that directory, and is written into that directory:
+
+- When the session touched several workout directories, write one `GRADE.md` per directory, each with its own validator run, score, and reference implementation, and add one `NOTE.md` row per directory.
+- Never carry an exercise from another directory into a grade, and never pick the directory by where the last validator run happened.
+- Before writing, list the directories the session worked in and confirm each one's `TASK.md` and code match the exercises you are about to grade there.
+
 Grade the code as it stands in the last validator run, and nothing else. Read the final files and rerun the validator immediately before writing `GRADE.md`, then base every point on that state and that run's output. Do not narrate earlier drafts, intermediate versions, or bugs the user already fixed, and do not score the history of the session. A mistake that survived into the final code is a problem in the current code: cite its current `file:line`, and say whether the final run or a hint found it.
 
 - Start with the overall score from 0 to 10 and one sentence justifying it.
-- If the session covered several exercises, add a short score and note per exercise.
+- If this directory held several exercises, add a short score and note per exercise. Exercises from other directories never appear here.
 - What was good: concrete points, with `file:line` when useful.
 - What was wrong: bugs, missed edge cases, idiom or safety issues present in the final code, whether a hint or the final tool run surfaced them, and which cases the tests did not cover.
 - How to approach next time: 2 to 4 short, transferable steps for this kind of problem.
@@ -278,7 +284,7 @@ Each language keeps one living progress note, `NOTE.md`, in its language root: t
 
 Updating after a grade:
 
-1. Add one row to the session log for the graded workout: absolute date, workout directory name (with the exercise title in parentheses when the topic name is ambiguous), level, score from `GRADE.md`, and the main issue in a short fragment with identifiers in backticks. Keep rows in date order. A session graded again replaces its own row instead of adding a second one.
+1. Add one row to the session log per graded workout directory, never one row spanning several directories: absolute date, workout directory name (with the exercise title in parentheses when the topic name is ambiguous), level, score from `GRADE.md`, and the main issue in a short fragment with identifiers in backticks. Keep rows in date order. A session graded again replaces its own row instead of adding a second one.
 2. Refresh the snapshot: graded-session count, the average (excluding parked areas, and say so), the latest three scores, the strongest and weakest areas, and the `Updated` date.
 3. Fold each issue from the grade's What was wrong into the matching struggle section as a bullet that starts with the workout directory name. When an issue fits no section, open a new numbered section with its own Drill shape or Habit line.
 4. Reorder the struggle sections by how often and how recently they recur. When a section has not recurred in the last two or three graded sessions, demote it or remove it.
