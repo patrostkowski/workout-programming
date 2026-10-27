@@ -55,7 +55,8 @@ Setup has the same shape for every language. The concrete commands live in the s
 
 1. If a `TASK.md` was found (explicit path, `resume`, or the current directory), skip the rest of setup and resume that exercise.
 2. Resolve the language (Go by default) and the level. Choose a fresh directory: `~/workouts/<language>/<topic>-<YYYYMMDD-HHMM>` by default, or a path the user names. Never write into a non-empty directory or the user's project.
-3. Create the base scaffold with the setup script instead of building it by hand. It creates the directory, the entry file, the module or build files where they apply, an empty `testdata/`, and a `TASK.md` scaffold with the known fields filled and `TODO` markers for the rest. It refuses an existing directory:
+3. Read the language's progress note, `NOTE.md` in the language root (see Progress note), when it exists. Use its focus list and struggle areas to pick a `Random` topic and to shape the task's constraints; never pick a parked area under `Random`. Do not recite the note to the user; mention at most one focus item in a line when it shaped the task.
+4. Create the base scaffold with the setup script instead of building it by hand. It creates the directory, the entry file, the module or build files where they apply, an empty `testdata/`, and a `TASK.md` scaffold with the known fields filled and `TODO` markers for the rest. It refuses an existing directory:
 
    ```sh
    "$CLAUDE_SKILL_DIR/scripts/new-workout.sh" <language> <topic>
@@ -63,17 +64,17 @@ Setup has the same shape for every language. The concrete commands live in the s
    ```
 
    Use `--dir` when the user names an exact path, `--base` to place the dated directory under another root, and `--level` so `TASK.md` carries the level. The script prints the absolute workout directory on its last line; use that path everywhere below.
-4. Add the exercise-specific scaffold: the minimal test scaffold the reference requires and the test assets the examples need, written into the existing `testdata/`. For long medium and hard tasks, prepopulate the entry file and any extra files with typed stubs and wiring as described in Prepopulated scaffolding. Never copy the validator into the workout directory; it stays in the skill.
-5. Overwrite the `TASK.md` scaffold with the first exercise, replacing every `TODO` and including its test assets and doc links (see Task file).
-6. Tell the user the directory, the entry file, the minimal test file when present, the test assets, the doc links, that `TASK.md` holds the current exercise, and how to run the validator against that directory. If the language reference provides make targets, say what each one runs. Easy tasks stay in the entry file with no prepopulation. Long medium tasks prepopulate the entry file; hard tasks may also add files with typed stubs. Say which stubs are provided and which behavior is left to the user, and never fill them in.
-7. Open the workout directory with the skill's opener once the scaffold exists:
+5. Add the exercise-specific scaffold: the minimal test scaffold the reference requires and the test assets the examples need, written into the existing `testdata/`. For long medium and hard tasks, prepopulate the entry file and any extra files with typed stubs and wiring as described in Prepopulated scaffolding. Never copy the validator into the workout directory; it stays in the skill.
+6. Overwrite the `TASK.md` scaffold with the first exercise, replacing every `TODO` and including its test assets and doc links (see Task file).
+7. Tell the user the directory, the entry file, the minimal test file when present, the test assets, the doc links, that `TASK.md` holds the current exercise, and how to run the validator against that directory. If the language reference provides make targets, say what each one runs. Easy tasks stay in the entry file with no prepopulation. Long medium tasks prepopulate the entry file; hard tasks may also add files with typed stubs. Say which stubs are provided and which behavior is left to the user, and never fill them in.
+8. Open the workout directory with the skill's opener once the scaffold exists:
 
    ```sh
    "$CLAUDE_SKILL_DIR/scripts/open-workout.sh" <absolute workout dir>
    ```
 
    It uses `WORKOUT_PROGRAMMING_EDITOR`, then `$VISUAL`, then `$EDITOR`, then the first GUI launcher on `PATH`: `code`, `code-insiders`, `codium`, `cursor`, `zed`, `subl`. It launches GUI editors and prints a `cd ... && ...` line for terminal editors such as `nvim`, `vim`, or `nano`. Relay that line to the user and continue; never run a terminal editor yourself. If it reports no editor, say so in one line and continue. Never install an editor and never open any path other than the workout directory.
-8. Verify the toolchain is installed. If it is missing, say so and skip setup.
+9. Verify the toolchain is installed. If it is missing, say so and skip setup.
 
 ## Prepopulated scaffolding
 
@@ -167,7 +168,7 @@ Run the script instead of invoking the underlying tools one by one. A one-off to
 3. **Validate an attempt:** read the submitted code first, then run the skill's validator for the language against the workout directory. The script is standing-consented inside the workout directory; ask before dependency or network commands, or anything that writes outside it. Report tool output as tool output and inspection as inspection; never invent results. A failing test before the user writes code is expected, because the stub panics.
 4. **If incorrect:** report the smallest actionable issue, with `file:line` and the exact compiler, linter, or sanitizer message when available. One issue at a time. Pinpoint the problem; never paste a working solution, a full patch, or code that trivially completes the exercise. Invite a revision.
 5. **If correct:** briefly explain the concept, mention one meaningful edge case, and offer the next problem or a harder variation. Do not deliver all exercises at once.
-6. **Continue or stop:** after three solved exercises, give a short progress summary and ask whether to continue. Only an explicit stop (`stop`, `done`, `finish`, or similar) triggers the wrap-up. Grading is separate: write `GRADE.md` only when the user explicitly writes `ready to grade`.
+6. **Continue or stop:** after three solved exercises, give a short progress summary and ask whether to continue. Only an explicit stop (`stop`, `done`, `finish`, or similar) triggers the wrap-up. Grading is separate: write `GRADE.md` only when the user explicitly writes `ready to grade`, then update `NOTE.md` from it (see Progress note).
 
 ## Answering concept questions
 
@@ -271,6 +272,77 @@ Template:
 - `<command>`: <result>
 ````
 
+## Progress note (NOTE.md)
+
+Each language keeps one living progress note, `NOTE.md`, in its language root: the directory that holds the dated workout directories, `~/workouts/<language>/` by default, the `--base` root when one was used, or the parent of a `--dir` path. It is the only cross-session memory this skill has. Read it during setup, and update it right after every `GRADE.md` you write, in the same turn. Never update it without a fresh grade, and never touch it on `stop` alone.
+
+Updating after a grade:
+
+1. Add one row to the session log for the graded workout: absolute date, workout directory name (with the exercise title in parentheses when the topic name is ambiguous), level, score from `GRADE.md`, and the main issue in a short fragment with identifiers in backticks. Keep rows in date order. A session graded again replaces its own row instead of adding a second one.
+2. Refresh the snapshot: graded-session count, the average (excluding parked areas, and say so), the latest three scores, the strongest and weakest areas, and the `Updated` date.
+3. Fold each issue from the grade's What was wrong into the matching struggle section as a bullet that starts with the workout directory name. When an issue fits no section, open a new numbered section with its own Drill shape or Habit line.
+4. Reorder the struggle sections by how often and how recently they recur. When a section has not recurred in the last two or three graded sessions, demote it or remove it.
+5. Rewrite Focus for the next sessions so it reflects the reordered struggles, with 3 to 5 concrete items.
+6. Leave Parked for now alone unless the user un-parks an area or a parked area was just graded.
+
+Rules:
+
+- Create the file from the template on the first grade in a language root that has none. Before rewriting an existing note, read it in full and keep the user's own edits; update in place instead of regenerating it.
+- Base every entry on `GRADE.md` files, never on memory of the chat. When backfilling, read the `GRADE.md` in each workout directory; a directory without one gets the log row `ungraded` and no score.
+- Keep it about the user's habits, not solutions: no code blocks, only identifiers, tool messages, and short descriptions.
+- Keep dates absolute, name sessions by directory, and never write "yesterday" or "last time".
+- Keep it short enough to read in a minute: at most about 6 bullets per struggle section, trimming the oldest first.
+- Tell the user in one line that `NOTE.md` was updated, and which struggle section moved, if any.
+
+Template:
+
+```markdown
+# Workout progress note
+
+- Updated: <YYYY-MM-DD>
+- Scope: `<language root>`
+- This is a living document. Update it after every graded session so the weak spots and the session log stay current.
+
+## Snapshot
+
+- <N> graded sessions so far.
+- Average<, excluding parked areas>: <x.y>/10.
+- Latest three: <session> <score>/10, <session> <score>/10, <session> <score>/10.
+- Strongest area: <area> (<session> <score>, ...).
+- Weakest area: <area, one sentence>.
+
+## Where I struggle most right now
+
+### 1. <struggle>
+
+<one line on the pattern>
+
+- `<session>`: <what went wrong>
+
+Drill shape: <one line> (or Habit: <one line>)
+
+## Parked for now
+
+<parked areas and when to revisit, or none>
+
+## Focus for the next sessions
+
+1. <focus item>
+
+## Session log
+
+| Date | Session | Level | Score | Main issue |
+| --- | --- | --- | --- | --- |
+| <YYYY-MM-DD> | <dir name (exercise)> | <level> | <score>/10 | <short fragment> |
+
+## How to keep this current
+
+1. After each graded session, add a row to the session log and refresh the snapshot numbers.
+2. If a struggle item disappears from two or three sessions in a row, demote or remove it, and promote whatever replaced it.
+3. Keep dates absolute and link sessions by directory name, not by "yesterday" or "last time".
+4. Keep this file in the workouts directory so it is the first thing read at the start of a new session.
+```
+
 ## Hint ladder
 
 Only give hints when requested or when the user is stuck and agrees to one. A `help` request does not unlock a walkthrough: answer with one issue, one question, and one doc command. Progress incrementally:
@@ -295,7 +367,7 @@ Give a complete worked solution only upon an explicit request such as `show solu
 - Raise the level after repeated independent success; lower or revisit after multiple hints or bugs.
 - Follow the track note in the selected language reference. For a systems track, keep easy sessions mixed between language internals and Unix tasks, and push medium and hard toward Unix internals over abstract puzzles; this user is a systems, admin, and devops engineer.
 - Revisit troublesome concepts in later sessions, varying the concrete task rather than repeating the same solution verbatim.
-- Never claim to remember progress across sessions without a concrete, read-back persistence mechanism. In a fresh session without user-supplied history, start from the requested level or the defaults.
+- Cross-session progress lives only in `NOTE.md`. Use what it says, and revisit its top struggle sections with a fresh task shape. Never claim to remember anything the note does not record. Without a note, start from the requested level or the defaults.
 
 ## Guardrails
 
@@ -308,7 +380,7 @@ Give a complete worked solution only upon an explicit request such as `show solu
 - Creating the scaffold with the skill's `scripts/new-workout.sh` is expected and is not the exercise solution; it writes only the directory, entry file, module, Makefile, empty `testdata/`, and the `TASK.md` scaffold.
 - Writing test assets to `testdata/` is allowed and is not the exercise solution. Keep them tiny and inspectable, and record each one with its exact contents in `TASK.md`.
 - Give doc links to authoritative sources only: the doc sources named in the selected language reference. Never link tutorials, blogs, forums, or generated summaries, and never fetch a link to check it. Say how to read the same page offline with that language's doc command, for example `go doc <symbol>` or `man 2 <call>`.
-- Stay inside the workout directory when creating, editing, running, or linting code. Tests may use the language's temp-directory facility for temporary files and sockets.
+- Stay inside the workout directory when creating, editing, running, or linting code. The one exception is `NOTE.md` in the language root, which you read at setup and update after a grade. Tests may use the language's temp-directory facility for temporary files and sockets.
 - Opening the workout directory with `scripts/open-workout.sh` after setup is allowed; that one call is the only editor or external app launch. Never launch a terminal editor such as `nvim`, `vim`, or `nano` yourself, even through the opener; hand the printed command to the user.
 - Run validation only through the language's validator script pointed at the workout directory; do not invoke its formatter, vet, test, build, or sanitizer commands separately, and never copy the script into the workout directory.
 - Apply the accuracy checks in the selected language reference; do not import one language's rules into another.
