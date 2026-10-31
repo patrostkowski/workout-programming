@@ -2,7 +2,7 @@
 
 One topic file per language, named after the language id: `references/topics/<id>.md`, where `<id>` is the same id used by `scripts/new-workout.sh` and `scripts/validate-<id>.sh`.
 
-Current ids: `go`, `c`.
+Current ids: `go`, `c`, `x86`, `arm`. The assembly ids are also invoked as `asm/x86` and `asm/arm`; the alias normalizes to the id.
 
 ## Shape
 

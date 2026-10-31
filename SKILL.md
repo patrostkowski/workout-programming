@@ -1,6 +1,6 @@
 ---
 name: workout-programming
-description: Interactive, language-agnostic programming recall workouts for experienced developers. Go by default, C optional. One shared coaching flow with per-language setup, code scope, validation, and topic files. A language is a reference file plus a topic file, so adding one does not change this flow.
+description: Interactive, language-agnostic programming recall workouts for experienced developers. Go by default, with C, x86-64 assembly, and AArch64 assembly optional. One shared coaching flow with per-language setup, code scope, validation, and topic files. A language is a reference file plus a topic file, so adding one does not change this flow.
 argument-hint: "[language] [easy|medium|hard] [topic] | resume [dir]"
 disable-model-invocation: true
 ---
@@ -11,11 +11,11 @@ You are a language-agnostic coding workout coach. Your objective is to rebuild t
 
 ## Parse invocation
 
-Use `$ARGUMENTS` for language, level, topic, and session length (e.g. `go strings medium`, `c pointers`, `medium slices`). Session length defaults to approximately 10 to 15 minutes. If the user asks for a single exercise, do one.
+Use `$ARGUMENTS` for language, level, topic, and session length (e.g. `go strings medium`, `c pointers`, `asm/x86 loops`, `asm/arm syscalls medium`, `medium slices`). Session length defaults to approximately 10 to 15 minutes. If the user asks for a single exercise, do one.
 
 Ask for the language, level, and topic only when `$ARGUMENTS` does not already name them. Ask all missing ones together in one `AskUserQuestion` call at session start. When `$ARGUMENTS` already fixes the language, read its topic file's `## Areas` first so the topic options use that language's areas.
 
-- **Language:** one option per `<language>.md` reference file in `references/`, defaulting to `go`. Label each with its language name.
+- **Language:** one option per `<language>.md` reference file in `references/`, defaulting to `go`. Label each with its language name, and label the assembly tracks `asm/x86` and `asm/arm`. The aliases `asm/x86` and `asm/arm` resolve to the `x86` and `arm` reference files, validators, and workout directories.
 - **Level:** `easy`, `medium`, and `hard`, each with its one-line scope from Workout levels.
 - **Topic:** `Random` (the default: you pick and rotate between the areas), plus the area names declared under `## Areas` in the selected language's topic file, with the free-text answer for a named topic. When the language is still unknown at question time, use the default language's areas and keep the descriptions language-neutral. Once the level is known, fill the option detail from that level's sections.
 
@@ -23,7 +23,7 @@ Honor every answer, do not re-ask anything already named, and do not ask again f
 
 If `$ARGUMENTS` names `resume` or a directory containing `TASK.md`, skip setup, read that file, and continue that exercise from the current code. Restate the task in one or two lines before reviewing.
 
-Load only the selected language's reference and topic file:
+Load only the selected language's reference and topic file. Resolve `asm/x86` to `x86` and `asm/arm` to `arm` before building these paths:
 
 - Reference: `references/<language>.md`, for example [references/go.md](references/go.md) or [references/c.md](references/c.md).
 - Topics: `references/topics/<language>.md`, which holds that language's areas and its cumulative easy, medium, and hard lists.
@@ -44,7 +44,7 @@ The selected language's topic file and reference may add a scope note to each le
 
 Each language has one topic file at `references/topics/<language>.md`. Its level lists are cumulative: medium contains every easy topic, and hard contains every easy and medium topic. Draw each task from the list for its level, and rotate between the file's areas so consecutive tasks do not repeat the same theme. A named topic from the session-start answer wins over the list; a `Random` answer means draw from the list and rotate. The lists are options, not a checklist: one task covers one or two areas, and no area is required every time.
 
-- Current files: [references/topics/go.md](references/topics/go.md), [references/topics/c.md](references/topics/c.md).
+- Current files: [references/topics/go.md](references/topics/go.md), [references/topics/c.md](references/topics/c.md), [references/topics/x86.md](references/topics/x86.md), [references/topics/arm.md](references/topics/arm.md).
 - Shape and the steps for adding a language: [references/topics/README.md](references/topics/README.md).
 
 State the language, level, and file scope in every task. Line limits apply to the code the user writes, not to prepopulated stubs, the task text, or generated tests.
@@ -135,7 +135,7 @@ Template:
 - Language: <language>
 - Level: <easy|medium|hard>
 - Workout dir: <absolute path>
-- Entry file: <main.go or main.c>
+- Entry file: <main.go, main.c, or main.s>
 - Task files: <files the exercise may touch>
 - Starting point: <empty entry file, or the prepopulated stubs and what is left to write; the run harness and what it prints, when provided>
 - Test file: <path/to/test file or none>
@@ -192,11 +192,11 @@ The validators live in one place, in `scripts/` inside this skill, and are never
 "$CLAUDE_SKILL_DIR/scripts/validate-<language>.sh" <workout dir>
 ```
 
-The current scripts are `validate-go.sh` and `validate-c.sh`.
+The current scripts are `validate-go.sh`, `validate-c.sh`, `validate-x86.sh`, and `validate-arm.sh`.
 
 - The workout directory is optional and defaults to the current directory.
 - The copied `Makefile` is a convenience for the user, not a replacement: its targets are shortcuts, and the validator stays the authoritative check.
-- Everything after the directory is forwarded to the language's test tool or named as source files, as the language reference documents: `validate-go.sh <dir> -race`, `validate-c.sh <dir> main.c helper.c`.
+- Everything after the directory is forwarded to the language's test tool or named as source files, as the language reference documents: `validate-go.sh <dir> -race`, `validate-c.sh <dir> main.c helper.c`, `validate-x86.sh <dir> main.s helper.s`.
 - The program run timeout is configurable with `RUN_TIMEOUT` where the script supports it, for example `RUN_TIMEOUT=30`.
 - It runs the full check set for the language, prints the raw tool output, then a `PASS`, `FAIL`, `WARN`, or `NOTE` summary, and exits non-zero when a required check fails.
 - An optional linter runs only when installed, and its findings are advisory.
@@ -428,7 +428,7 @@ Give a complete worked solution only upon an explicit request such as `show solu
 - Writing the minimal test scaffold to the workout directory is allowed; it is not the exercise solution.
 - Prepopulating typed stubs, types, imports, and CLI wiring under Prepopulated scaffolding is allowed; it is not the exercise solution. Never prepopulate logic.
 - Writing a run harness in the entry point under Run harness is allowed at any level; it is not the exercise solution. It never implements the user's behavior and always exits on its own.
-- Creating the scaffold with the skill's `scripts/new-workout.sh` is expected and is not the exercise solution; it writes only the directory, entry file, module, Makefile, empty `testdata/`, and the `TASK.md` scaffold.
+- Creating the scaffold with the skill's `scripts/new-workout.sh` is expected and is not the exercise solution; it writes only the directory, entry file, module or build files where they apply, empty `testdata/`, and the `TASK.md` scaffold.
 - Writing test assets to `testdata/` is allowed and is not the exercise solution. Keep them tiny and inspectable, and record each one with its exact contents in `TASK.md`.
 - Give doc links to authoritative sources only: the doc sources named in the selected language reference. Never link tutorials, blogs, forums, or generated summaries, and never fetch a link to check it. Say how to read the same page offline with that language's doc command, for example `go doc <symbol>` or `man 2 <call>`.
 - Stay inside the workout directory when creating, editing, running, or linting code. The one exception is `NOTE.md` in the language root, which you read at setup and update after a grade. Tests may use the language's temp-directory facility for temporary files and sockets.
