@@ -43,7 +43,7 @@ It asks for language (`Go` default, `C`, `asm/x86`, or `asm/arm`), level, and to
 - **medium:** one problem, at most 100 lines, several constructs and some standard library
 - **hard:** a small multi-file program
 
-It then creates `~/workouts/<language>/<dir>/` via `scripts/new-workout.sh`: `TASK.md`, `testdata/` fixtures, and for Go a module plus a small table-driven test. Assembly tracks start from `main.s`. It opens the directory in your editor when one is available.
+It then creates `~/workouts/<language>/<dir>/` via `scripts/new-workout.sh`: `TASK.md`, `testdata/` fixtures, a `Makefile` for Go and both assembly tracks, and for Go a module plus a small table-driven test. Assembly tracks start from `main.s`; there, `make run` builds and runs the program and prints its exit status, and `make test` runs the validator. It opens the directory in your editor when one is available.
 
 Submit your code and it points at the smallest issue without giving the solution. Ask for `hint`, `next`, `harder`, `easier`, `skip`, or `show solution` at any time. Say `done` to finish, or `ready to grade` for a `GRADE.md` with a 0 to 10 score and a reference implementation.
 
@@ -78,5 +78,6 @@ The directory defaults to the current one. Go runs `gofmt`, `go vet`, `go test`,
 - `references/<language>.md`: per-language setup, scope, validation, concept map
 - `references/topics/<language>.md`: areas and cumulative topics per level
 - `scripts/new-workout.sh`: workout scaffold
+- `assets/<language>/Makefile`: convenience Makefile copied into Go and assembly workouts
 - `scripts/open-workout.sh`: opens the workout directory in the user's editor
 - `scripts/validate-go.sh`, `scripts/validate-c.sh`, `scripts/validate-x86.sh`, `scripts/validate-arm.sh`: validators

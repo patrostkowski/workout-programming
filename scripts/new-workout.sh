@@ -139,12 +139,6 @@ func main() {
 EOF
 	created+=(main.go)
 
-	if [ ! -f "$skill_dir/assets/Makefile" ]; then
-		die "missing asset: $skill_dir/assets/Makefile"
-	fi
-	cp "$skill_dir/assets/Makefile" "$workout_dir/Makefile"
-	created+=(Makefile)
-
 	if command -v go >/dev/null 2>&1; then
 		if ! output=$(cd "$workout_dir" && go mod init "$module_name" 2>&1); then
 			printf '%s\n' "$output" >&2
@@ -221,6 +215,18 @@ esac
 
 workout_dir=$(cd "$workout_dir" && pwd)
 
+case $language in
+go | x86 | arm)
+	make_asset=$skill_dir/assets/$language/Makefile
+	if [ ! -f "$make_asset" ]; then
+		die "missing asset: $make_asset"
+	fi
+	cp "$make_asset" "$workout_dir/Makefile"
+	sed -i "s|__VALIDATE__|$skill_dir/scripts/validate-$language.sh|g" "$workout_dir/Makefile"
+	created+=(Makefile)
+	;;
+esac
+
 mkdir "$workout_dir/testdata"
 created+=(testdata/)
 
@@ -238,12 +244,12 @@ c)
 x86)
 	language_name="x86-64 assembly"
 	test_file=none
-	make_targets=none
+	make_targets='make run, make test'
 	;;
 arm)
 	language_name="AArch64 assembly"
 	test_file=none
-	make_targets=none
+	make_targets='make run, make test'
 	;;
 esac
 

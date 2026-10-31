@@ -15,7 +15,7 @@ Create the scaffold with the skill's setup script:
 "$CLAUDE_SKILL_DIR/scripts/new-workout.sh" --dir ~/workouts/arm/<slug> asm/arm <topic>
 ```
 
-It creates the directory, `main.s`, an empty `testdata/`, and a `TASK.md` scaffold, then prints the workout directory. It never writes into an existing directory. Do not create these by hand.
+It creates the directory, `main.s`, a `Makefile`, an empty `testdata/`, and a `TASK.md` scaffold, then prints the workout directory. It never writes into an existing directory. Do not create these by hand.
 
 Fallback when the script is unavailable:
 
@@ -42,6 +42,8 @@ _start:
 ```
 
 Use `.global` (`.globl` also works) and the `_start` entry point. Check the toolchain before the first task.
+
+The copied `Makefile` is a convenience shortcut, not the validator. It defaults to the GNU cross tools and `qemu-aarch64`; override with `make ASM=... LINKER=... RUNNER=...`, and use `make run RUNNER=` on a native AArch64 host. `make run` assembles and links every `.s` file, runs the program, and prints its exit status; a non-zero status is the result, not a make failure. `make test` runs `scripts/validate-arm.sh` on the directory, and `make clean` removes the objects and the binary.
 
 ## Toolchain
 
