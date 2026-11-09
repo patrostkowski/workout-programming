@@ -6,14 +6,13 @@ set -euo pipefail
 # Editors that can open a directory; the rest start with an empty buffer in the right cwd.
 dir_editors="vi vim nvim nvi hx helix emacs"
 plain_editors="nano micro ed editor sensible-editor kak kakoune"
-gui_editors="code code-insiders codium cursor zed subl"
 
 usage() {
 	cat <<'EOF'
 usage: open-workout.sh <workout dir>
 
-Opens the workout directory in WORKOUT_PROGRAMMING_EDITOR, then VISUAL, then EDITOR, then
-the first of code, code-insiders, codium, cursor, zed, subl on PATH.
+Opens the workout directory in WORKOUT_PROGRAMMING_EDITOR. When it is unset or
+empty, nothing is opened.
 
 GUI editors are launched. Terminal editors are never launched; the command to
 run in your own shell is printed instead.
@@ -41,18 +40,9 @@ dir=$1
 [ -d "$dir" ] || die "workout directory not found: $dir"
 dir=$(cd "$dir" && pwd)
 
-editor=${WORKOUT_PROGRAMMING_EDITOR:-${VISUAL:-${EDITOR:-}}}
+editor=${WORKOUT_PROGRAMMING_EDITOR:-}
 if [ -z "$editor" ]; then
-	for candidate in $gui_editors; do
-		if command -v "$candidate" >/dev/null 2>&1; then
-			editor=$candidate
-			break
-		fi
-	done
-fi
-
-if [ -z "$editor" ]; then
-	printf 'note: no editor found, open %s yourself\n' "$dir"
+	printf 'note: WORKOUT_PROGRAMMING_EDITOR is unset, not opening an editor; open %s yourself\n' "$dir"
 	exit 0
 fi
 

@@ -73,7 +73,7 @@ Setup has the same shape for every language. The concrete commands live in the s
    "$CLAUDE_SKILL_DIR/scripts/open-workout.sh" <absolute workout dir>
    ```
 
-   It uses `WORKOUT_PROGRAMMING_EDITOR`, then `$VISUAL`, then `$EDITOR`, then the first GUI launcher on `PATH`: `code`, `code-insiders`, `codium`, `cursor`, `zed`, `subl`. It launches GUI editors and prints a `cd ... && ...` line for terminal editors such as `nvim`, `vim`, or `nano`. Relay that line to the user and continue; never run a terminal editor yourself. If it reports no editor, say so in one line and continue. Never install an editor and never open any path other than the workout directory.
+   It uses only `WORKOUT_PROGRAMMING_EDITOR`; when that is unset or empty, it opens nothing and prints a note. It launches GUI editors and prints a `cd ... && ...` line for terminal editors such as `nvim`, `vim`, or `nano`. Relay that line to the user and continue; never run a terminal editor yourself. If it reports that no editor is set or found, say so in one line and continue. Never install an editor and never open any path other than the workout directory.
 9. Verify the toolchain is installed. If it is missing, say so and skip setup.
 
 ## Prepopulated scaffolding
@@ -212,7 +212,7 @@ Run the script instead of invoking the underlying tools one by one. A one-off to
 3. **Validate an attempt:** read the submitted code first, then run the skill's validator for the language against the workout directory. The script is standing-consented inside the workout directory; ask before dependency or network commands, or anything that writes outside it. Report tool output as tool output and inspection as inspection; never invent results. A failing test before the user writes code is expected, because the stub panics.
 4. **If incorrect:** report the smallest actionable issue, with `file:line` and the exact compiler, linter, or sanitizer message when available. One issue at a time. Pinpoint the problem; never paste a working solution, a full patch, or code that trivially completes the exercise. Invite a revision.
 5. **If correct:** briefly explain the concept, mention one meaningful edge case, and offer the next problem or a harder variation. Do not deliver all exercises at once.
-6. **Continue or stop:** after three solved exercises, give a short progress summary and ask whether to continue. Only an explicit stop (`stop`, `done`, `finish`, or similar) triggers the wrap-up. Grading is separate: write `GRADE.md` only when the user explicitly writes `ready to grade`, then update `NOTE.md` from it (see Progress note).
+6. **Continue or stop:** after three solved exercises, give a short progress summary and ask whether to continue. Only an explicit stop (`stop`, `done`, `finish`, or similar) triggers the wrap-up. Grading is separate: write `GRADE.md` only when the user explicitly writes `please grade`, then update `NOTE.md` from it (see Progress note).
 
 ## Answering concept questions
 
@@ -238,7 +238,7 @@ Keep the walkthrough short and tied to the code they actually wrote. Do not grad
 
 ## Grade file (GRADE.md)
 
-Grading is opt-in. Write `GRADE.md` only when the user explicitly writes `ready to grade`, and overwrite any previous one. Never grade proactively, and never infer it from `stop`, `done`, `finish`, a correct solution, or the end of a session.
+Grading is opt-in. Write `GRADE.md` only when the user explicitly writes `please grade`, and overwrite any previous one. Never grade proactively, and never infer it from `stop`, `done`, `finish`, a correct solution, or the end of a session.
 
 The unit of grading is the workout directory, not the chat session. Each `GRADE.md` covers only the exercises whose code lives in that directory, and is written into that directory:
 
