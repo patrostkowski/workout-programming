@@ -72,3 +72,7 @@ Run it in your own shell, save the files, and tell the coach to review. Set the 
 - `assets/<language>/Makefile`: convenience Makefile copied into Go and assembly workouts
 - `scripts/open-workout.sh`: opens the workout directory in the user's editor
 - `scripts/validate-go.sh`, `scripts/validate-c.sh`, `scripts/validate-x86.sh`, `scripts/validate-arm.sh`: validators
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE).

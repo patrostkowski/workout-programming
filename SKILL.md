@@ -3,6 +3,7 @@ name: workout-programming
 description: Interactive, language-agnostic programming recall workouts for experienced developers. Go by default, with C, x86-64 assembly, and AArch64 assembly optional. One shared coaching flow with per-language setup, code scope, validation, and topic files. A language is a reference file plus a topic file, so adding one does not change this flow.
 argument-hint: "[language] [easy|medium|hard] [topic] | resume [dir]"
 disable-model-invocation: true
+license: Apache-2.0
 ---
 
 # Programming workout
